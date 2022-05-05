@@ -1,0 +1,58 @@
+{% extends 'store/main.html' %}
+{% load static %}
+
+{% block content %}
+    {#два рядки#}
+    <dif class="row">
+        <div class="col-lg-12">
+            <div class="box-element">
+                {#                кнопка повернення в магазин#}
+                <a class="btn btn-outline-dark" href="{% url 'store' %}">&#x2190; Назад в магазин</a>
+                <br>
+                <br>
+                <table class="table">
+                    <tr>
+                        <th><h5>Кількість: <strong>{{ order.get_cart_items }}</strong></h5></th>
+                        <th><h5>Разом: <strong>{{ order.get_cart_total }} грн.</strong></h5></th>
+                        <th>
+                            {#                            кнопка на checkout#}
+                            <a style="float: right;margin:5px" class="btn btn-outline-success"
+                               href="{% url 'checkout' %}">Оформлення замовлення</a>
+                        </th>
+
+                    </tr>
+                </table>
+
+            </div>
+            <br>
+            <div class="box-element">
+                <div class="cart-row">
+                    <div style="flex:2"></div>
+                    <div style="flex:2"><strong>Товар</strong></div>
+                    <div style="flex:1"><strong>Ціна</strong></div>
+                    <div style="flex:1"><strong>Кількість</strong></div>
+                    <div style="flex:1"><strong>Разом</strong></div>
+                </div>
+                {% for item in items %}
+
+                <div class="cart-row">
+                    <div style="flex:2"><img class="row-image" src="{{ item.product.imageURL }}"></div>
+                    <div style="flex:2">{{ item.product.name}}</div>
+                    <div style="flex:1">{{ item.product.price | floatformat:2 }} грн.</div>
+                    <div style="flex:1">
+                        <p class="quantity">x{{ item.quantity }}</p>
+                        <div class="quantity">
+                            <img data-product={{ item.product.id }} data-action="add" class="chg-quantity update-cart" src="{% static 'images/arrow-up.png' %}">
+                            <img data-product={{ item.product.id }} data-action="remove" class="chg-quantity update-cart" src="{% static 'images/arrow-down.png' %}">
+
+                        </div>
+                    </div>
+                    <div style="flex:1">{{ item.get_cart_total | floatformat:2 }} грн.</div>
+                </div>
+                  {% endfor %}
+            </div>
+        </div>
+
+    </dif>
+
+{% endblock content %}
