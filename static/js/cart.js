@@ -27,7 +27,8 @@ function addCookieItem(productId, action){
         if(cart[productId] == undefined){
             cart[productId] = {'quantity':1}
         }else{
-            cart[productId]['quantity'] + 1
+            cart[productId]['quantity'] += 1
+            console.log('andriy')
         }
     }
     if(action == 'remove'){
