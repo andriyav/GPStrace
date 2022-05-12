@@ -45,150 +45,139 @@
             </div>
             <br>
             <div class="box-element hidden" id="payment-info">
-            <small>Оплата картою</small>
-            <div id="paypal-button-container"></div>
+                <small>Оплата картою</small>
+                <div id="paypal-button-container">
+                    <form method="POST" action="https://www.liqpay.ua/api/3/checkout"
+                          accept-charset="utf-8">
+                        <input type="hidden" name="data" value="eyAidmVyc2lvbiIgOiAzLCAicHVibGljX2tleSIgOiAieW91cl9wdWJsaWNfa2V5IiwgImFjdGlv
+biIgOiAicGF5IiwgImFtb3VudCIgOiAxLCAiY3VycmVuY3kiIDogIlVTRCIsICJkZXNjcmlwdGlv
+biIgOiAiZGVzY3JpcHRpb24gdGV4dCIsICJvcmRlcl9pZCIgOiAib3JkZXJfaWRfMSIgfQ=="/>
+                        <input type="hidden" name="signature" value="QvJD5u9Fg55PCx/Hdz6lzWtYwcI="/>
+                        <input type="image"
+                               src="//static.liqpay.ua/buttons/p1ru.radius.png"/>
+                    </form>
+                </div>
 
-{#            <button id="make-payment">Оплатити</button>#}
+                {#            <button id="make-payment">Оплатити</button>#}
+            </div>
+
+
         </div>
 
 
-    </div>
+        <div class="col-lg-6">
+            <div class="box-element">
+                <a class="btn btn-outline-dark" href="{% url 'cart' %}">&#x2190; Назад в корзину</a>
 
+                <hr>
+                <h3>Разом замовлення </h3>
+                <hr>
+                {% for item in items %}
+                    <div class="cart-row">
 
-    <div class="col-lg-6">
-        <div class="box-element">
-            <a class="btn btn-outline-dark" href="{% url 'cart' %}">&#x2190; Назад в корзину</a>
-
-            <hr>
-            <h3>Разом замовлення </h3>
-            <hr>
-            {% for item in items %}
-                <div class="cart-row">
-
-                    <div style="flex:2"><img class="row-image" src="{{ item.product.imageURL }}"></div>
-                    <div style="flex:2"><p>{{ item.product.name}}</p></div>
-                    <div style="flex:1"><p>{{ item.product.price | floatformat:2 }} грн.</p></div>
-                    <div style="flex:1"><p>x{{ item.quantity }}</p></div>
-                </div>
-             {% endfor %}
+                        <div style="flex:2"><img class="row-image" src="{{ item.product.imageURL }}"></div>
+                        <div style="flex:2"><p>{{ item.product.name }}</p></div>
+                        <div style="flex:1"><p>{{ item.product.price | floatformat:2 }} грн.</p></div>
+                        <div style="flex:1"><p>x{{ item.quantity }}</p></div>
+                    </div>
+                {% endfor %}
                 <h5>Кількість: {{ order.get_cart_items }}</h5>
                 <h5>Разом: {{ order.get_cart_total | floatformat:2 }} грн.</h5>
 
+            </div>
         </div>
-     </div>
-     </div>
-    <script src="https://www.paypal.com/sdk/js?client-id=YOUR-CLIENT-ID&currency=USD&disable-funding=credit"></script>
- <script>
-        // Render the PayPal button into #paypal-button-container
-        paypal.Buttons({
+    </div>
 
-            // Set up the transaction
-            createOrder: function(data, actions) {
-                return actions.order.create({
-                    purchase_units: [{
-                        amount: {
-                            value: '88.44'
-                        }
-                    }]
-                });
-            },
+    <script>
+        var LiqPay = require('liqpay');
+        var liqpay = new LiqPay(sandbox_i35153672197, sandbox_tGb9GTK0HIwjBi27BrqsV2l2EOJOmfXNuzC34NKe);
+        var html = liqpay.cnb_form({
+            'action': 'pay',
+            'amount': '1',
+            'currency': 'USD',
+            'description': 'description text',
+            'order_id': 'order_id_1',
+            'version': '3'
+        });
+    </script>
+    <script type="text/javascript">
 
-            // Finalize the transaction
-            onApprove: function(data, actions) {
-                return actions.order.capture().then(function(orderData) {
-                    // Successful capture! For demo purposes:
-                    console.log('Capture result', orderData, JSON.stringify(orderData, null, 2));
-                    var transaction = orderData.purchase_units[0].payments.captures[0];
-                    alert('Transaction '+ transaction.status + ': ' + transaction.id + '\n\nSee console for all available details');
+        var shipping = '{{ order.shipping }}'
+        var total = '{{ order.get_cart_total }}'
 
-                    // Replace the above to show a success message within this page, e.g.
-                    // const element = document.getElementById('paypal-button-container');
-                    // element.innerHTML = '';
-                    // element.innerHTML = '<h3>Thank you for your payment!</h3>';
-                    // Or go to another URL:  actions.redirect('thank_you.html');
-                });
+        if (shipping == 'False') {
+            document.getElementById('shipping-info').innerHTML = ''
+        }
+        if (user != 'AnonymousUser') {
+            document.getElementById('user-info').innerHTML = ''
+        }
+        if (shipping == 'False' && user != 'AnonymousUser') {
+            // заберає форму якщо юзер залогований та цифровий товар
+            document.getElementById('form-wrapper').classList.add("hidden");
+            // показує оплату якщо юзер залогований і адрес доставки не вимагається
+            document.getElementById('payment-info').classList.remove("hidden");
+        }
+        var form = document.getElementById('form')
+        csrftoken = form.getElementsByTagName("input")[0].value
+        console.log('Newtoken:', form.getElementsByTagName("input")[0].value)
+        form.addEventListener('submit', function (e) {
+            e.preventDefault()
+            console.log('Form submitted...')
+            document.getElementById('form-button').classList.add("hidden")
+            document.getElementById('payment-info').classList.remove("hidden")
+        })
+
+        /*
+        document.getElementById('make-payment').addEventListener('click', function (e){
+            submitFormData()
+        })
+
+         */
+        function submitFormData() {
+            console.log('Payment has been done')
+            var userFormData = {
+                'name': null,
+                'email': null,
+                'total': total,
+            }
+            var shippingInfo = {
+                'address': null,
+                'city': null,
+                'state': null,
+                'zipcode': null
+            }
+            if (shipping != 'False') {
+                shippingInfo.address = form.address.value
+                shippingInfo.city = form.city.value
+                shippingInfo.state = form.state.value
+                shippingInfo.zipcode = form.zipcode.value
             }
 
+            if (user == 'AnonymousUser') {
+                userFormData.name = form.name.value
+                userFormData.email = form.email.value
 
-        }).render('#paypal-button-container');
-    </script>
-<script type="text/javascript">
-
-    var shipping = '{{ order.shipping }}'
-    var total = '{{ order.get_cart_total }}'
-
-    if(shipping == 'False'){
-        document.getElementById('shipping-info').innerHTML = ''
-        }
-    if (user != 'AnonymousUser'){
-        document.getElementById('user-info').innerHTML = ''
-    }
-    if (shipping == 'False' && user != 'AnonymousUser'){
-        // заберає форму якщо юзер залогований та цифровий товар
-        document.getElementById('form-wrapper').classList.add("hidden");
-        // показує оплату якщо юзер залогований і адрес доставки не вимагається
-        document.getElementById('payment-info').classList.remove("hidden");
-    }
-    var form = document.getElementById('form')
-    csrftoken = form.getElementsByTagName("input")[0].value
-    console.log('Newtoken:', form.getElementsByTagName("input")[0].value)
-    form.addEventListener('submit', function(e){
-        e.preventDefault()
-        console.log('Form submitted...')
-        document.getElementById('form-button').classList.add("hidden")
-        document.getElementById('payment-info').classList.remove("hidden")
-    })
-    /*
-    document.getElementById('make-payment').addEventListener('click', function (e){
-        submitFormData()
-    })
-
-     */
-    function submitFormData(){
-        console.log('Payment has been done')
-        var userFormData = {
-            'name':null,
-            'email':null,
-            'total': total,
-        }
-        var shippingInfo = {
-            'address':null,
-            'city':null,
-            'state': null,
-            'zipcode': null
-        }
-        if(shipping != 'False'){
-            shippingInfo.address = form.address.value
-            shippingInfo.city = form.city.value
-            shippingInfo.state = form.state.value
-            shippingInfo.zipcode = form.zipcode.value
-        }
-
-        if(user == 'AnonymousUser'){
-            userFormData.name= form.name.value
-            userFormData.email = form.email.value
-
-        }
-        var url = "/process_Order/"
-        fetch(url, {
-            method:'POST',
-            headers:{
-                'Content-Type':'application/json',
-                'X-CSRFToken':csrftoken,
-            },
-            body:JSON.stringify({'form':userFormData, 'shipping':shippingInfo}
-            )
-        })
-            .then((response) => response.json())
-            .then((data) => {
-                console.log('Success:', data)
-                alert('Trnasaction completed');
-            cart = {}
-            document.cookie = 'cart=' + JSON.stringify(cart) + ";domain=;path=/"
-                window.location.href = "{% url 'store' %}"
+            }
+            var url = "/process_Order/"
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken,
+                },
+                body: JSON.stringify({'form': userFormData, 'shipping': shippingInfo}
+                )
             })
-    }
-</script>
+                .then((response) => response.json())
+                .then((data) => {
+                    console.log('Success:', data)
+                    alert('Trnasaction completed');
+                    cart = {}
+                    document.cookie = 'cart=' + JSON.stringify(cart) + ";domain=;path=/"
+                    window.location.href = "{% url 'store' %}"
+                })
+        }
+    </script>
     </div>
     </div>
 
