@@ -1,6 +1,7 @@
 {% extends 'store/main.html' %}
 {% load static %}
 {% block content %}
+    <link rel="stylesheet" href="https://pay.fondy.eu/latest/checkout-vue/checkout.css ">
     <div class="row">
         <div class="col-lg-6">
             <div class="box-element" id="form-wrapper">
@@ -44,26 +45,13 @@
                 </form>
             </div>
             <br>
-            <div class="box-element hidden" id="payment-info">
+ <div class="box-element hidden" id="payment-info">
                 <small>Оплата картою</small>
-                <div id="paypal-button-container">
-                    <form method="POST" action="https://www.liqpay.ua/api/3/checkout"
-                          accept-charset="utf-8">
-                        <input type="hidden" name="data" value="eyAidmVyc2lvbiIgOiAzLCAicHVibGljX2tleSIgOiAieW91cl9wdWJsaWNfa2V5IiwgImFjdGlv
-biIgOiAicGF5IiwgImFtb3VudCIgOiAxLCAiY3VycmVuY3kiIDogIlVTRCIsICJkZXNjcmlwdGlv
-biIgOiAiZGVzY3JpcHRpb24gdGV4dCIsICJvcmRlcl9pZCIgOiAib3JkZXJfaWRfMSIgfQ=="/>
-                        <input type="hidden" name="signature" value="QvJD5u9Fg55PCx/Hdz6lzWtYwcI="/>
-                        <input type="image"
-                               src="//static.liqpay.ua/buttons/p1ru.radius.png"/>
-                    </form>
-                </div>
+                <div id="checkout-container"></div>
 
-                {#            <button id="make-payment">Оплатити</button>#}
-            </div>
-
-
+            {#            <button id="make-payment">Оплатити</button>#}
         </div>
-
+        </div>
 
         <div class="col-lg-6">
             <div class="box-element">
@@ -84,21 +72,46 @@ biIgOiAiZGVzY3JpcHRpb24gdGV4dCIsICJvcmRlcl9pZCIgOiAib3JkZXJfaWRfMSIgfQ=="/>
                 <h5>Кількість: {{ order.get_cart_items }}</h5>
                 <h5>Разом: {{ order.get_cart_total | floatformat:2 }} грн.</h5>
 
+
             </div>
         </div>
     </div>
 
+
+
+
+                </form>
+            </div>
+    <script src="https://pay.fondy.eu/latest/checkout-vue/checkout.js"></script>
+
+
     <script>
-        var LiqPay = require('liqpay');
-        var liqpay = new LiqPay(sandbox_i35153672197, sandbox_tGb9GTK0HIwjBi27BrqsV2l2EOJOmfXNuzC34NKe);
-        var html = liqpay.cnb_form({
-            'action': 'pay',
-            'amount': '1',
-            'currency': 'USD',
-            'description': 'description text',
-            'order_id': 'order_id_1',
-            'version': '3'
-        });
+    var total1 = {{ order.get_cart_total | floatformat:2  }} * 100
+        var Options = {
+	options: {
+		methods: ['card', 'banklinks_eu', 'wallets', 'local_methods'],
+		methods_disabled: ['banklinks_eu', 'wallets', 'local_methods'],
+		card_icons: ['mastercard', 'visa', 'maestro'],
+		active_tab: 'card',
+		fields: false,
+		title: '',
+		link: '',
+		full_screen: false,
+		button: true,
+        locales: ['cs', 'de', 'en', 'es', 'fr', 'hu', 'it', 'ko', 'lv', 'pl', 'ro', 'ru', 'sk', 'uk'],
+        email: false,
+
+
+	},
+	params: {
+		merchant_id: 1396424,
+		required_rectoken: 'y',
+		currency: 'UAH',
+		amount: total1,
+		order_desc: ''
+	}
+}
+fondy("#checkout-container", Options);
     </script>
     <script type="text/javascript">
 
