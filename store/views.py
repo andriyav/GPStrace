@@ -4,7 +4,7 @@ from .models import *
 import json
 import datetime
 from .utils import *
-from cloudipsp import Api, Checkout
+# from cloudipsp import Api, Checkout
 
 
 def store(request):
